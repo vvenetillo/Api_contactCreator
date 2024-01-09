@@ -1,8 +1,20 @@
 const express = require("express");
 const app = express();
-const user = require("../model/User");
+const User = require("../model/User"); 
+require('dotenv').config()
+const cors = require('cors');
 
-const port = 3001;
+const users = []
+
+const port = process.env.PORT || 3001;
+
+app.use(
+  cors({
+    origin: "*",
+    methods: "GET, POST",
+    allowedHeaders: "Content-Type, Authorization",
+  })
+);
 
 app.listen(port, () => {
   try {
@@ -18,43 +30,44 @@ app.get("/", (req, res) => {
   res.status(200).json({ msg: "Bem-vindo a API" });
 });
 
-app.post("/cadastro", (req, res) => {
-    const { fname, femail, ftelefone } = req.body;
-    try {
-      const newUser = {
-        fname,
-        femail,
-        ftelefone,
-      };
-  
-      res.status(201).json({ msg: "Usuário cadastrado com sucesso", user: newUser });
-    } catch (error) {
-      console.error(error);
-      res.status(500).send("Error");
-    }
-  });
-  
+app.post("/register", (req, res) => {
+  try {
+    const { username, email, telefone } = req.body;
 
-  app.get("/:id/user", (req, res) => {
-    try {
-      const id = req.params.id;
-      const user = {
-        id,
-        fname: "TestUser",
-        femail: "testuser@example.com",
-        ftelefone: "123456789",
-      };
-  
-      if (!user) {
-        return res.status(404).json({ msg: "User not found" });
-      }
-  
-      res.status(200).json(user);
-    } catch (error) {
-      console.error(error);
-      res.status(500).send("Error");
+    const newUser = new User(username, email, telefone)
+
+    users.push(newUser);
+
+    res.status(201).json({ msg: "Usuário cadastrado com sucesso", user: newUser });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error");
+  }
+});
+
+app.get("/users", (req, res) => {
+  try {
+    res.status(200).json({ users });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error");
+  }
+});
+
+app.get("/:id/user", (req, res) => {
+  try {
+    const id = req.params.id;
+    const user = users.find(user => user.id === id);
+
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
     }
-  });
-  
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error");
+  }
+});
 
 module.exports = app;
