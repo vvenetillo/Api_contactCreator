@@ -26,6 +26,7 @@ db.connect((err) => {
   }
 });
 
+
 app.use(
   cors({
     origin: "*",
@@ -48,6 +49,27 @@ app.get("/", (req, res) => {
   res.status(200).json({ msg: "Bem-vindo a API" });
 });
 
+app.post("/register", (req, res) => {
+  try {
+    const { username, email, telefone } = req.body;
+
+    const sql = "INSERT INTO clientes (nome, email, telefone, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?)";
+    const values = [username, email, telefone, new Date(), new Date()];
+
+    db.query(sql, values, (err, result) => {
+      if (err) {
+        console.error("Erro ao inserir no MySQL:", err);
+        return res.status(500).send("Erro interno no servidor");
+      }
+
+      res.status(201).json({ msg: "Usuário cadastrado com sucesso" });
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error");
+  }
+});
+
 app.get("/users", (req, res) => {
   try {
     const sql = "SELECT * FROM clientes";
@@ -64,6 +86,7 @@ app.get("/users", (req, res) => {
     res.status(500).send("Error");
   }
 });
+
 
 
 app.get("/:id/user", (req, res) => {
@@ -89,26 +112,7 @@ app.get("/:id/user", (req, res) => {
   }
 });
 
-app.post("/register", (req, res) => {
-  try {
-    const { username, email, telefone } = req.body;
 
-    const sql = "INSERT INTO clientes (nome, email, telefone, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?)";
-    const values = [username, email, telefone, new Date(), new Date()];
-
-    db.query(sql, values, (err, result) => {
-      if (err) {
-        console.error("Erro ao inserir no MySQL:", err);
-        return res.status(500).send("Erro interno no servidor");
-      }
-
-      res.status(201).json({ msg: "Usuário cadastrado com sucesso" });
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Error");
-  }
-});
 
 app.put("/users/:id", (req, res) => {
   try {
