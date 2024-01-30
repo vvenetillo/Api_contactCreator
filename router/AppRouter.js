@@ -15,6 +15,7 @@ const db = mysql.createConnection({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
+  connectionLimit: 10,
 });
 
 db.connect((err) => {
@@ -28,7 +29,7 @@ db.connect((err) => {
 app.use(
   cors({
     origin: "*",
-    methods: "GET, POST, UPDATE, DELETE",
+    methods: "GET, POST, PUT, DELETE",
     allowedHeaders: "Content-Type, Authorization",
   })
 );
