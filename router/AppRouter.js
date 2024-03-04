@@ -11,8 +11,10 @@ const db = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   database: process.env.DB_DATABASE,
+  password: process.env.DB_PASSWORD,
   connectionLimit: 10,
 });
+
 
 app.use(
   cors({
@@ -62,7 +64,7 @@ app.get("/:id/user", (req, res) => {
   try {
     const id = req.params.id;
 
-    const sql = "SELECT * FROM clientes WHERE id = ?";
+    const sql = "SELECT * FROM meubanco.clientes WHERE id = ?";
     db.query(sql, [id], (err, result) => {
       if (err) {
         console.error("Erro ao consultar no MySQL:", err);
@@ -112,7 +114,7 @@ app.delete("/users/:id", (req, res) => {
   try {
     const id = req.params.id;
 
-    const sqlDelete = "DELETE FROM clientes WHERE id = ?";
+    const sqlDelete = "DELETE FROM meubanco.clientes WHERE id = ?";
     db.query(sqlDelete, [id], (deleteErr, deleteResult) => {
       if (deleteErr) {
         console.error("Erro ao excluir no MySQL:", deleteErr);
