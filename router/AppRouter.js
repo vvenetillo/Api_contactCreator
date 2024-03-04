@@ -13,7 +13,6 @@ const port = process.env.PORT || 3001;
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
-  // password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
   connectionLimit: 10,
 });
@@ -72,7 +71,7 @@ app.post("/register", (req, res) => {
 
 app.get("/users", (req, res) => {
   try {
-    const sql = "SELECT * FROM clientes";
+    const sql = "SELECT * FROM meubanco.clientes";
     db.query(sql, (err, result) => {
       if (err) {
         console.error("Erro ao consultar no MySQL:", err);
