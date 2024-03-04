@@ -3,28 +3,16 @@ const app = express();
 const User = require("../model/User");
 require('dotenv').config();
 const cors = require('cors');
-const mysql = require('mysql2');
-const { STRING } = require("sequelize");
-
-const users = [];
+const mysql = require('mysql2/promise'); 
 
 const port = process.env.PORT || 3001;
 
-const db = mysql.createConnection({
+const db = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   database: process.env.DB_DATABASE,
   connectionLimit: 10,
 });
-
-db.connect((err) => {
-  if (err) {
-    console.error("Erro ao conectar ao MySQL:", err);
-  } else {
-    console.log("Conexão com MySQL estabelecida com sucesso");
-  }
-});
-
 
 app.use(
   cors({
@@ -44,48 +32,30 @@ app.listen(port, () => {
 
 app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.status(200).json({ msg: "Bem-vindo a API" });
-});
-
-app.post("/register", (req, res) => {
+app.post("/register", async (req, res) => {
   try {
     const { username, email, telefone } = req.body;
 
     const sql = "INSERT INTO clientes (nome, email, telefone, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?)";
     const values = [username, email, telefone, new Date(), new Date()];
 
-    db.query(sql, values, (err, result) => {
-      if (err) {
-        console.error("Erro ao inserir no MySQL:", err);
-        return res.status(500).send("Erro interno no servidor");
-      }
-
-      res.status(201).json({ msg: "Usuário cadastrado com sucesso" });
-    });
+    const [result] = await db.query(sql, values);
+    res.status(201).json({ msg: "Usuário cadastrado com sucesso", insertId: result.insertId });
   } catch (error) {
-    console.error(error);
-    res.status(500).send("Error");
+    console.error("Erro ao inserir no MySQL:", error);
+    res.status(500).send("Erro interno no servidor");
   }
 });
 
-app.get("/users", (req, res) => {
+app.get("/users", async (req, res) => {
   try {
-    const sql = "SELECT * FROM meubanco.clientes";
-    db.query(sql, (err, result) => {
-      if (err) {
-        console.error("Erro ao consultar no MySQL:", err);
-        return res.status(500).send("Erro interno no servidor");
-      }
-      
-      res.status(200).json({ users: result });
-    });
+    const [rows] = await db.query("SELECT * FROM meubanco.clientes");
+    res.status(200).json({ users: rows });
   } catch (error) {
-    console.error(error);
-    res.status(500).send("Error");
+    console.error("Erro ao consultar no MySQL:", error);
+    res.status(500).send("Erro interno no servidor");
   }
 });
-
 
 
 app.get("/:id/user", (req, res) => {
