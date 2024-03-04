@@ -28,7 +28,7 @@ db.connect((err) => {
 
 app.use(
   cors({
-    origin: "*",
+    origin: process.env.FRONT_END,
     methods: "GET, POST, PUT, DELETE",
     allowedHeaders: "Content-Type, Authorization",
   })
