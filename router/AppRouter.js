@@ -16,7 +16,7 @@ const db = mysql.createPool({
 
 app.use(
   cors({
-    origin: process.env.FRONT_END,
+    origin: "*",
     methods: "GET, POST, PUT, DELETE",
     allowedHeaders: "Content-Type, Authorization",
   })
